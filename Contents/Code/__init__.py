@@ -285,28 +285,32 @@ def createVideoChannelObject(url_path, vco, cproduct, cplatform, container):
 	if not cplatform: cplatform = "undefined"
 
 	# Build streaming url.
-	url_base = "http://%s:%s@%s:%s/%s" % (Prefs["tvheadend_user"], Prefs["tvheadend_pass"],
-										Prefs["tvheadend_host"], Prefs["tvheadend_web_port"],
-										url_path)
+	url = "http://%s:%s@%s:%s/%s" % (Prefs["tvheadend_user"], Prefs["tvheadend_pass"],
+									Prefs["tvheadend_host"], Prefs["tvheadend_web_port"],
+									url_path)
 
 	# Decide if we have to stream for native streaming devices or if we have to transcode the content.
 	if Prefs["tvheadend_mpegts_passthrough"] == True or cproduct == "Plex Home Theater" or cproduct == "PlexConnect":
-		vco = addMediaObject(vco, url_base + "?profile=pass")
+		url += "?profile=pass"
 	elif Prefs["tvheadend_custprof_ios"] and cplatform == "iOS":
 		# Custom streaming profile for iOS.
-		vco = addMediaObject(vco, url_base + "?profile=" + Prefs["tvheadend_custprof_ios"])
+		url += "?profile=" + Prefs["tvheadend_custprof_ios"]
 	elif Prefs["tvheadend_custprof_android"] and cplatform == "Android":
     	# Custom streaming profile for Android.
-		vco = addMediaObject(vco, url_base + "?profile=" + Prefs["tvheadend_custprof_android"])
+		url += "?profile=" + Prefs["tvheadend_custprof_android"]
 	elif Prefs["tvheadend_custprof_default"]:
         # Custom default streaming.
-		vco = addMediaObject(vco, url_base + "?profile=" + Prefs["tvheadend_custprof_default"])
+		url += "?profile=" + Prefs["tvheadend_custprof_default"]
 	else:
 		# Default streaming.
-		vco = addMediaObject(vco, url_base)
+		pass
+
+	vco = addMediaObject(vco, url)
 
 	# Log the product and platform which requested a stream.
-	debug("Created VideoObject for " + cproduct + " plex product on " + cplatform + " platform")
+	debug("Created VideoObject for '" + cproduct + "' plex product on '" + cplatform + "' platform")
+	# Log the url
+	debug("Created VideoObject with URL: " + url)
 
 	if container: return ObjectContainer(objects = [vco])
 	return vco
